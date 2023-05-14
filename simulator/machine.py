@@ -52,9 +52,9 @@ class Timer():
     def __init__(self, period, mode, callback):
         period = period / 1000
         if mode == Timer.ONE_SHOT:
-            _start_timer(threading.Timer(period, callback))
+            _start_timer(threading.Timer(period, lambda: callback(self)))
         elif mode == Timer.PERIODIC:
             def period_fn():
-                callback()
+                callback(self)
                 _start_timer(threading.Timer(period, period_fn))
             _start_timer(threading.Timer(period, period_fn))

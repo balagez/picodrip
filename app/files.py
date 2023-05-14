@@ -20,8 +20,6 @@ def resolve(path):
 
 ROOT_DIR = resolve(dirname(__file__) + '/..')
 
-print(ROOT_DIR)
-
 EVENT_LOG = ROOT_DIR + '/events.log'
 PUMP_LOG = ROOT_DIR + '/pumps.log'
 
