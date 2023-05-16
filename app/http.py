@@ -2,6 +2,7 @@ import os
 import utime
 import uio
 import json
+import socket
 from app.events import Logger
 from app.files import ROOT_DIR
 
@@ -49,6 +50,28 @@ STATUS_TEXTS = {
 
 DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+def get(host, path, port=80, timeout=10):
+    request = f'GET {path} HTTP/1.1\r\nHost: {host}\r\n\r\n'.encode('ascii')
+    sockaddr = socket.getaddrinfo(host, port)[0][-1]
+    s = socket.socket()
+    s.settimeout(timeout)
+    s.connect(sockaddr)
+    s.send(request)
+    response = s.recv(4096).decode()
+    s.close()
+    
+    status = None
+    body = ''
+    headers_done = False
+    for line in response.split('\r\n'):
+        if headers_done:
+            body += line.strip() + ' '
+        if not status:
+            status = line
+        if not line:
+            headers_done = True
+    return status, body
 
 def httpTime(timestamp):
     year, month, mday, hour, minute, second, weekday, _ = utime.localtime(timestamp)
@@ -275,7 +298,7 @@ class Response:
         def writeHeader(name, value):
             value and writer.write(f'{name}: {value}{delim}'.encode())
         
-        log.info(f'{self._req.method} {self._req.url} -- {self._status}')
+        #log.info(f'{self._req.method} {self._req.url} -- {self._status}')
         writer.write(f'{self._version} {self._status} {self._statusText}{delim}'.encode())
         writeHeader(HeaderNames.SERVER, SERVER)
         writeHeader(HeaderNames.DATE, httpTime(utime.time()))

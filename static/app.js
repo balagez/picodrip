@@ -83,7 +83,7 @@ const getPumpLogs = async () => {
 		line = line.trim();
 		if (line) {
 			let [ ts, i, v, caller, ...rest ] = line.trim().split(' ');
-			const date = new Date(ts);
+			const date = new Date(Number(ts) * 1000);
 			parsed.push({
 				pump: Number(i),
 				value: Number(v),
@@ -117,7 +117,7 @@ const Section = ({ key, className, title = null }, ...children) => [
 	e('section', { key: `${key}-section`, className }, children)
 ];
 
-const Header = () => Section({ key: 'header', className: 'header' }, 'Pico');
+const Header = () => Section({ key: 'header', className: 'header' }, 'PicoDrip');
 
 const Label = ({ key }, ...children) => span({ key: `${key}-label`, className: 'label' }, children);
 
@@ -157,7 +157,7 @@ const HistoryTable = history => {
 
 	const cellsFor = daysAgo => pumpIndices.map(pump => {
 		const cellKey = `h-c-${pump}-${daysAgo}`;
-		const entries = history[pump][daysAgo];
+		const entries = (history[pump] || {})[daysAgo];
 		const children = entries
 			? entries.map(({ date, duration, caller }) => {
 				const key = `${cellKey}-${date}`;

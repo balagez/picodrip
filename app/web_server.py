@@ -1,5 +1,7 @@
 import machine
 import uasyncio
+import ntptime
+import utime
 import app.scheduler
 import app.wlan
 from app.routes import router
@@ -11,6 +13,7 @@ log = Logger('main')
 async def main():
     app.scheduler.start()
     app.wlan.connect()
+    ntptime.settime()
     loop = uasyncio.get_event_loop()
     loop.set_exception_handler(handle_exception)
     loop.create_task(uasyncio.start_server(router.handle, "0.0.0.0", 80))
@@ -33,4 +36,3 @@ except Exception as e:
     log.error(f'Main event loop stopped because of exception: {e}')
 finally:
     uasyncio.new_event_loop()
-

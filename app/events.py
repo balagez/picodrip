@@ -1,17 +1,31 @@
+import os
 import utime
 from app.files import EVENT_LOG, PUMP_LOG
 
-TIMEZONE = '-'
-
-def timestamp():
-    y, m, d, h, i, s, _, _ = utime.localtime()
-    return f'{y}-{m:02d}-{d:02d}T{h:02d}:{i:02d}:{s:02d}'
+def _timestamp():
+    return str(utime.time())
 
 def _event(kind, message):
-    line = f'{timestamp()} {kind} {message}'
+    line = f'{_timestamp()} {kind} {message}'
     print(line)
     with open(EVENT_LOG, 'a') as f:
         f.write(line + '\n')
+
+def logrotate(logfile, older_than=604800):
+    cutoff = utime.time() - older_than
+    new_logfile = logfile + '.new'
+    with open(logfile, 'r') as f:
+        with open(new_logfile, 'w') as n:
+            for line in f.readlines():
+                ts = int(line.split( )[0])
+                if ts > cutoff:
+                    n.write(line)
+    os.remove(logfile)
+    os.rename(new_logfile, logfile)
+
+def logrotate_all():
+    logrotate(EVENT_LOG)
+    logrotate(PUMP_LOG)
 
 class Logger:
     
@@ -29,5 +43,5 @@ class Logger:
     
     def pump(self, i, on, caller):
         with open(PUMP_LOG, 'a') as f:
-            line = f'{timestamp()} {i} {on} {caller or ""}'
+            line = f'{_timestamp()} {i} {on} {caller or ""}'
             f.write(line + '\n')

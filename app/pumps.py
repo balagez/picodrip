@@ -1,4 +1,5 @@
 from machine import Pin, Timer
+import micropython
 from app.events import Logger
 
 _OFF = 1
@@ -34,10 +35,13 @@ def off(i, caller='manual'):
     log.pump(i, 0, caller)
     _pins[i].value(_OFF)
 
+def _cb_scheduled_off(i, caller):        
+    return lambda timer: micropython.schedule(lambda arg: off(i, caller), None)
+
 def blink(i, duration_ms, caller='manual'):
     assert_exists(i)
     on(i, caller)
-    Timer(period=duration_ms, mode=Timer.ONE_SHOT, callback=lambda timer: off(i, caller))
+    Timer(period=duration_ms, mode=Timer.ONE_SHOT, callback=_cb_scheduled_off(i, caller))
 
 def is_on(i):
     assert_exists(i)

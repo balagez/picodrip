@@ -8,7 +8,7 @@ def index_html():
     return f"""<!doctype html>
 <html lang="en">
 <head>
-  <title>Pico</title>
+  <title>PicoDrip</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>

@@ -1,7 +1,8 @@
 import time as pytime
+from datetime import datetime, timezone
 
 def time():
-    return round(pytime.time())
+    return round(datetime.now(timezone.utc).timestamp())
 
 def localtime(t = None):
     t = pytime.localtime(t)
