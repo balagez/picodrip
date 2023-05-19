@@ -1,9 +1,10 @@
 from machine import Pin, Timer
 import micropython
+from micropython import const
 from app.events import Logger
 
-_OFF = 1
-_ON = 0
+_OFF = const(1)
+_ON = const(0)
 
 _pins = {
     1: Pin(18, mode=Pin.OUT, value=_OFF),

@@ -1,13 +1,15 @@
 import network
 import utime
+from micropython import const
 import app.ddns
 from app.events import Logger
 
-_SSID = ''
-_PASSWORD = ''
+_SSID = const('')
+_PASSWORD = const('')
 
 _wlan = network.WLAN(network.STA_IF)
 _wlan.active(True)
+_wlan.config(pm = 0xa11140) # disable power-saving mode
 
 log = Logger('wlan')
 

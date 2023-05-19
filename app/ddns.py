@@ -1,10 +1,10 @@
 import socket
+from micropython import const
 import app.http
 from app.events import Logger
 
-HOST = 'freedns.afraid.org'
-PORT = 80
-PATH = '/dynamic/update.php?V0t3RkJlMjZ0bk1IY1dCUEdybUE3SERjOjIxNDY5OTcz'
+_HOST = const('freedns.afraid.org')
+_PATH = const('/dynamic/update.php?V0t3RkJlMjZ0bk1IY1dCUEdybUE3SERjOjIxNDY5OTcz')
 
 log = Logger('ddns')
 
@@ -19,6 +19,6 @@ def update_ddns(ip):
         log.info('DDNS is disabled')
         return
 
-    log.info(f'Updating DDNS with {HOST}')
-    status, body = app.http.get(HOST, PATH)
+    log.info(f'Updating DDNS with {_HOST}')
+    status, body = app.http.get(_HOST, _PATH)
     log.info(status + ' ' + body)
