@@ -2,6 +2,8 @@
 
 /* global React, ReactDOM */
 
+const serverZoneOffset = -4; // New York
+
 const pumpNames = {
 	1: 'Flowers',
 	2: 'Ficus',
@@ -36,18 +38,36 @@ const group = (array, fn) => array.reduce((acc, curr) => {
 	return acc;
 }, {});
 
+const oneHour = 60 * 60 * 1000;
+const oneDay = 24 * oneHour;
+
+const serverTime = localTime => {
+	if (!localTime) {
+		localTime = new Date();
+	}
+	return new Date(localTime.getTime() + localTime.getTimezoneOffset() * 60000 + serverZoneOffset * oneHour);
+};
+
 const mapValues = (obj, fn) => Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, fn(v)]));
 
-const daysAgo = date => Math.ceil(Math.abs(new Date() - date) / (1000 * 60 * 60 * 24)) - 1;
+const daysAgo = date => {
+	const now = serverTime();
+	const then = new Date(date.getTime());
+	then.setHours(0, 0, 0, 0);
+	now.setHours(0, 0, 0, 0);
+	return (+now - +then) / oneDay;
+};
+
+const weekdayOf = date => date.toLocaleDateString('en-US', { weekday: 'short' });
 
 const relativeDate = daysAgo => {
 	if (daysAgo == 0) return 'Today';
 	if (daysAgo == 1) return 'Yesterday';
 	if (daysAgo > 1 && daysAgo < 7) return `${daysAgo} days ago`;
-	const date = new Date(new Date() - 86400000 * daysAgo);
+	const date = new Date(serverTime() - oneDay * daysAgo);
 	const m = date.toLocaleString('en-US', { month: 'short' });
 	const d = date.getDate();
-	const wd = date.toLocaleDateString('en-US', { weekday: 'short' });
+	const wd = weekdayOf(date);
 	return `${m} ${d}, ${wd}`;
 };
 
@@ -83,7 +103,7 @@ const getPumpLogs = async () => {
 		line = line.trim();
 		if (line) {
 			let [ ts, i, v, caller, ...rest ] = line.trim().split(' ');
-			const date = new Date(Number(ts) * 1000);
+			const date = serverTime(new Date(Number(ts) * 1000));
 			parsed.push({
 				pump: Number(i),
 				value: Number(v),
