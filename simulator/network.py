@@ -53,3 +53,6 @@ class WLAN:
         if self._connected:
             return [ip]
         return ['0.0.0.0']
+
+    def config(self, pm):
+        pass
